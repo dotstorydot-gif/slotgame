@@ -212,14 +212,19 @@ button.primary-btn:active {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
-  padding: 20px 10px;
-  max-height: 100vh;
+  gap: 10px;
+  padding: 10px;
+  min-height: 100vh;
+  justify-content: flex-start;
+  overflow-y: auto;
 }
 
 .slot-title {
-  font-size: 1.8rem;
-  margin: 0;
+  font-size: 1.5rem;
+  margin: 5px 0;
+  color: white;
+  text-align: center;
+  line-height: 1.2;
 }
 
 .slot-machine {
@@ -227,7 +232,7 @@ button.primary-btn:active {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
 }
 
 .slot-frame {
