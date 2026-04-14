@@ -190,9 +190,7 @@ const updateInventory = async (id, count, venue) => {
   try {
     const { error } = await supabase
       .from('inventory')
-      .update({ count })
-      .eq('id', id)
-      .eq('venue', venue)
+      .upsert({ id, venue, count, label: REWARDS.find(r => r.id === id)?.label || id })
     if (error) throw error
   } catch (error) {
     console.error(`Error updating inventory for ${id} at ${venue}:`, error)
@@ -298,6 +296,18 @@ const renderAdminDashboard = async () => {
     const val = Math.max(0, parseInt(value) || 0)
     if (!inventory[currentAdminVenue]) inventory[currentAdminVenue] = {}
     inventory[currentAdminVenue][id] = val
+    
+    // Visual feedback
+    const input = document.querySelector(`#inv-input-${id}`)
+    if (input) {
+      input.style.borderColor = 'var(--h-green)'
+      input.style.boxShadow = '0 0 10px var(--h-green)'
+      setTimeout(() => {
+        input.style.borderColor = 'rgba(255,255,255,0.2)'
+        input.style.boxShadow = 'none'
+      }, 500)
+    }
+    
     await updateInventory(id, val, currentAdminVenue)
   }
   window.exportCSV = () => {
