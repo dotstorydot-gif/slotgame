@@ -30,7 +30,12 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: #00501f url('/assets/Screen-01.png') top center / cover no-repeat fixed;
+  background-color: #00501f;
+  background-image: url('/assets/Screen-01.png');
+  background-position: top center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -409,6 +414,7 @@ button.primary-btn:active {
 /* Responsive adjustments */
 @media (max-width: 768px) {
   body {
-    background: #00501f url('/assets/mobile-background.jpg') top center / cover no-repeat fixed;
+    background-image: url('/assets/mobile-background.jpg');
+    background-attachment: scroll; /* Fixed is buggy on mobile */
   }
 }
