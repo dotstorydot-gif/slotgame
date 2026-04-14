@@ -72,9 +72,9 @@ const createBubbles = () => {
 const renderCaptureForm = () => {
   app.innerHTML = `
     <div class="capture-container">
-      <h1 id="admin-trigger" style="cursor: default;">PLAY & WIN</h1>
-      <p style="font-size: 1.5rem; color: var(--h-green); font-weight: 700; margin-bottom: 5px;">Exclusive Rewards</p>
-      <p class="subtitle" style="margin-bottom: 30px;">Enter your details to join the challenge.</p>
+      <h1 id="admin-trigger" style="cursor: default; font-size: 2rem;">PLAY & WIN</h1>
+      <p style="font-size: 1.2rem; color: var(--h-green); font-weight: 700; margin-bottom: 5px;">Exclusive Rewards</p>
+      <p class="subtitle">Enter your details to join the challenge.</p>
       
       <form id="lead-form">
         <div class="form-group">
@@ -91,7 +91,7 @@ const renderCaptureForm = () => {
         
         <div class="form-group">
           <label for="venue">Venue</label>
-          <select id="venue" style="width: 100%; padding: 14px 18px; background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: white; font-size: 1rem; font-weight: 700; outline: none;" required>
+          <select id="venue" required>
             <option value="" disabled selected>Select Venue</option>
             <option value="Le Méridien Airport">Le Méridien Airport</option>
             <option value="Buffalo Wings & Rings">Buffalo Wings & Rings</option>
