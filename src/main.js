@@ -11,12 +11,9 @@ const REWARDS = [
   { id: 'try_again', label: 'Try Again', icon: '/try_again.png', type: 'image' }
 ]
 
-let inventory = {
-  duffle_bag: 0,
-  laptop_bag: 0,
-  laptop_sleeve: 0,
-  try_again: 0
-}
+let inventory = {}
+const VENUES = ['Le Méridien Airport', 'Buffalo Wings & Rings', 'The Villa Hub']
+let currentAdminVenue = VENUES[0]
 
 let leads = []
 let spinsLeft = 1
@@ -29,20 +26,17 @@ const initData = async () => {
     if (invError) throw invError
     
     if (invData && invData.length > 0) {
+      // Group inventory by venue
+      inventory = {}
       invData.forEach(item => {
-        inventory[item.id] = item.count
+        if (!inventory[item.venue]) inventory[item.venue] = {}
+        inventory[item.venue][item.id] = item.count
       })
     } else {
-      // Default inventory if table is empty
-      const initialInv = [
-        { id: 'duffle_bag', count: 100, label: 'Heineken Bag' },
-        { id: 'laptop_bag', count: 50, label: 'Laptop Case' },
-        { id: 'laptop_sleeve', count: 20, label: 'Laptop Sleeve' },
-        { id: 'try_again', count: 200, label: 'Try Again' }
-      ]
-      await supabase.from('inventory').upsert(initialInv)
-      initialInv.forEach(item => {
-        inventory[item.id] = item.count
+      // Fallback if table is empty (should be handled by SQL seed)
+      inventory = {}
+      VENUES.forEach(v => {
+        inventory[v] = { duffle_bag: 100, laptop_bag: 50, laptop_sleeve: 20, try_again: 200 }
       })
     }
 
@@ -177,10 +171,10 @@ const renderCaptureForm = () => {
         
         const registeredUser = data[0]
         
-        // Every registration decrements "Try Again" by default
-        if (inventory.try_again > 0) {
-          inventory.try_again--
-          await updateInventory('try_again', inventory.try_again)
+        // Every registration decrements "Try Again" by default for the specific venue
+        if (inventory[registeredUser.venue] && inventory[registeredUser.venue].try_again > 0) {
+          inventory[registeredUser.venue].try_again--
+          await updateInventory('try_again', inventory[registeredUser.venue].try_again, registeredUser.venue)
         }
         
         handleSuccess(registeredUser)
@@ -192,15 +186,16 @@ const renderCaptureForm = () => {
   })
 }
 
-const updateInventory = async (id, count) => {
+const updateInventory = async (id, count, venue) => {
   try {
     const { error } = await supabase
       .from('inventory')
       .update({ count })
       .eq('id', id)
+      .eq('venue', venue)
     if (error) throw error
   } catch (error) {
-    console.error(`Error updating inventory for ${id}:`, error)
+    console.error(`Error updating inventory for ${id} at ${venue}:`, error)
   }
 }
 
@@ -244,17 +239,23 @@ const renderAdminDashboard = async () => {
         <button class="primary-btn" style="width: auto; padding: 10px 15px; font-size: 0.8rem; background: var(--h-red);" onclick="confirmReset()">Reset All Data</button>
         <button class="primary-btn" style="width: auto; padding: 10px 15px; font-size: 0.8rem;" onclick="exportCSV()">Export CSV</button>
       </div>
-      <h1 style="text-align: center; font-size: 3rem; margin-bottom: 40px;">ADMIN DASHBOARD</h1>
+      <h1 style="text-align: center; font-size: 3rem; margin-bottom: 20px;">ADMIN DASHBOARD</h1>
+      <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 30px;">
+        ${VENUES.map(v => `
+          <button class="primary-btn" style="width: auto; padding: 10px 20px; background: ${currentAdminVenue === v ? 'var(--h-green)' : '#333'};" 
+            onclick="switchVenue('${v}')">${v}</button>
+        `).join('')}
+      </div>
       <div class="dashboard-grid">
         <div class="dashboard-panel">
-          <h3 style="color: var(--h-green); margin-bottom: 20px;">INVENTORY</h3>
+          <h3 style="color: var(--h-green); margin-bottom: 20px;">INVENTORY: ${currentAdminVenue}</h3>
           <div style="display: flex; flex-direction: column; gap: 15px;">
             ${REWARDS.map(r => `
               <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px;">
                 <span>${r.label}</span>
                 <div style="display: flex; align-items: center; gap: 5px;">
                   <button class="adj-btn" onclick="adjust('${r.id}', -1)">-</button>
-                  <input type="number" id="inv-input-${r.id}" value="${inventory[r.id] || 0}" 
+                  <input type="number" id="inv-input-${r.id}" value="${(inventory[currentAdminVenue] && inventory[currentAdminVenue][r.id]) || 0}" 
                     style="width: 60px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; text-align: center; border-radius: 4px; padding: 5px; font-weight: 800;"
                     onchange="setInventory('${r.id}', this.value)">
                   <button class="adj-btn" onclick="adjust('${r.id}', 1)">+</button>
@@ -264,12 +265,15 @@ const renderAdminDashboard = async () => {
           </div>
         </div>
         <div class="dashboard-panel">
-          <h3 style="color: var(--h-green); margin-bottom: 20px;">LEADS (${leads.length})</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="color: var(--h-green);">LEADS (${leads.filter(l => l.venue === currentAdminVenue).length})</h3>
+            <span style="font-size: 0.8rem; opacity: 0.7;">Showing: ${currentAdminVenue}</span>
+          </div>
           <div style="height: 350px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 10px;">
             <table style="width: 100%; border-collapse: collapse;">
-              <thead><tr style="border-bottom: 2px solid var(--h-green);"><th align="left" style="padding: 10px;">Name</th><th align="left" style="padding: 10px;">Phone</th><th align="left" style="padding: 10px;">Venue</th><th align="left" style="padding: 10px;">Prize</th><th align="left" style="padding: 10px;">Date</th></tr></thead>
+              <thead><tr style="border-bottom: 2px solid var(--h-green);"><th align="left" style="padding: 10px;">Name</th><th align="left" style="padding: 10px;">Phone</th><th align="left" style="padding: 10px;">Prize</th><th align="left" style="padding: 10px;">Date</th></tr></thead>
               <tbody>
-                ${leads.map(lead => `<tr><td style="padding: 10px;">${lead.name}</td><td style="padding: 10px;">${lead.phone}</td><td style="padding: 10px; font-size: 0.8rem; opacity: 0.8;">${lead.venue || '-'}</td><td style="padding: 10px; color: ${lead.prize && lead.prize !== 'Try Again' && lead.prize !== 'Pending' ? 'var(--h-green)' : 'rgba(255,255,255,0.4)'}; font-weight: 700;">${lead.prize || 'Pending'}</td><td style="padding: 10px; font-size: 0.7rem;">${new Date(lead.created_at).toLocaleString()}</td></tr>`).join('')}
+                ${leads.filter(l => l.venue === currentAdminVenue).map(lead => `<tr><td style="padding: 10px;">${lead.name}</td><td style="padding: 10px;">${lead.phone}</td><td style="padding: 10px; color: ${lead.prize && lead.prize !== 'Try Again' && lead.prize !== 'Pending' ? 'var(--h-green)' : 'rgba(255,255,255,0.4)'}; font-weight: 700;">${lead.prize || 'Pending'}</td><td style="padding: 10px; font-size: 0.7rem;">${new Date(lead.created_at).toLocaleString()}</td></tr>`).join('')}
               </tbody>
             </table>
           </div>
@@ -280,6 +284,10 @@ const renderAdminDashboard = async () => {
       </div>
     </div>
   `
+  window.switchVenue = (v) => {
+    currentAdminVenue = v
+    renderAdminDashboard()
+  }
   window.adjust = async (id, delta) => {
     const input = document.querySelector(`#inv-input-${id}`)
     const newValue = Math.max(0, parseInt(input.value) + delta)
@@ -288,14 +296,15 @@ const renderAdminDashboard = async () => {
   }
   window.setInventory = async (id, value) => {
     const val = Math.max(0, parseInt(value) || 0)
-    inventory[id] = val
-    await updateInventory(id, val)
+    if (!inventory[currentAdminVenue]) inventory[currentAdminVenue] = {}
+    inventory[currentAdminVenue][id] = val
+    await updateInventory(id, val, currentAdminVenue)
   }
   window.exportCSV = () => {
     const leadsHeaders = "Name,Phone,Venue,Prize,Timestamp\n";
     const leadsRows = leads.map(l => `"${l.name}","${l.phone}","${l.venue || '-'}","${l.prize}","${new Date(l.created_at).toLocaleString()}"`).join("\n");
     const invHeaders = "\n\nItem,Quantity\n";
-    const invRows = REWARDS.map(r => `"${r.label}","${inventory[r.id] || 0}"`).join("\n");
+    const invRows = REWARDS.map(r => `"${r.label}","${inventory[currentAdminVenue] ? inventory[currentAdminVenue][r.id] : 0}"`).join("\n");
     
     const csvContent = "data:text/csv;charset=utf-8," + leadsHeaders + leadsRows + invHeaders + invRows;
     const encodedUri = encodeURI(csvContent);
@@ -312,7 +321,7 @@ const renderAdminDashboard = async () => {
     confirmOverlay.style.zIndex = '1000'
     confirmOverlay.innerHTML = `
       <h2 style="color: var(--h-red);">WARNING!</h2>
-      <p>Are you sure you want to delete all leads and reset inventory? This cannot be undone.</p>
+      <p>Are you sure you want to delete all leads and reset inventory for ALL venues? This cannot be undone.</p>
       <div style="display: flex; gap: 20px; justify-content: center; margin-top: 20px;">
         <button id="do-reset" class="primary-btn" style="background: var(--h-red);">RESET ALL</button>
         <button id="cancel-reset" class="primary-btn" style="background: #666;">CANCEL</button>
@@ -323,14 +332,16 @@ const renderAdminDashboard = async () => {
     document.querySelector('#do-reset').onclick = async () => {
       try {
         await supabase.from('leads').delete().neq('id', 0) // Delete all leads
-        const resetInv = [
-          { id: 'duffle_bag', count: 100 },
-          { id: 'laptop_bag', count: 50 },
-          { id: 'laptop_sleeve', count: 20 },
-          { id: 'try_again', count: 200 }
-        ]
-        for (const item of resetInv) {
-          await updateInventory(item.id, item.count)
+        for (const v of VENUES) {
+          const resetInv = [
+            { id: 'duffle_bag', count: 100 },
+            { id: 'laptop_bag', count: 50 },
+            { id: 'laptop_sleeve', count: 20 },
+            { id: 'try_again', count: 200 }
+          ]
+          for (const item of resetInv) {
+            await updateInventory(item.id, item.count, v)
+          }
         }
         location.reload()
       } catch (err) {
@@ -360,7 +371,7 @@ const renderSlotMachine = (userData) => {
         <div class="spin-count">Spins Remaining: <span id="count">${spinsLeft}</span></div>
         <button id="spin-btn" class="primary-btn" style="max-width: 300px; font-size: 1.5rem; padding: 20px;">SPIN</button>
       </div>
-      <div class="footer-note">Participant: ${userData.name}</div>
+      <div class="footer-note">Participant: ${userData.name} | Venue: ${userData.venue}</div>
       <div id="game-message" class="game-message">
         <h2 id="msg-title">CONGRATULATIONS!</h2>
         <p id="msg-body">You've won a prize!</p>
@@ -382,13 +393,16 @@ const handleSpin = async (userData) => {
   // Sync inventory before spin to ensure accurate odds
   await initData()
 
+  // Use inventory for the user's specific venue
+  const venueInv = inventory[userData.venue] || { duffle_bag: 0, laptop_bag: 0, laptop_sleeve: 0, try_again: 0 }
+
   // Only items with stock > 0 can be won
-  const availableWinItems = REWARDS.slice(0, 3).filter(r => inventory[r.id] > 0)
+  const availableWinItems = REWARDS.slice(0, 3).filter(r => venueInv[r.id] > 0)
   const canWin = wonPrizes.length === 0 && availableWinItems.length > 0
 
-  // Win probability = prize stock / (prize stock + try_again stock)
-  const totalPrizeStock = availableWinItems.reduce((sum, r) => sum + inventory[r.id], 0)
-  const tryAgainStock = Math.max(inventory.try_again || 0, 0)
+  // Win probability based on venue stock
+  const totalPrizeStock = availableWinItems.reduce((sum, r) => sum + (venueInv[r.id] || 0), 0)
+  const tryAgainStock = Math.max(venueInv.try_again || 0, 0)
   const totalStock = totalPrizeStock + tryAgainStock
   const winProbability = totalStock > 0 ? totalPrizeStock / totalStock : 0
 
@@ -402,7 +416,7 @@ const handleSpin = async (userData) => {
     let rand = Math.random() * totalPrizeStock
     let winItem = availableWinItems[0]
     for (const r of availableWinItems) {
-      rand -= inventory[r.id]
+      rand -= venueInv[r.id]
       if (rand <= 0) { winItem = r; break }
     }
     result[0] = result[1] = result[2] = winItem
@@ -449,9 +463,9 @@ const handleSpin = async (userData) => {
 
     if (isWin) {
       wonPrizes.push(result[0])
-      if (inventory[result[0].id] > 0) {
-        inventory[result[0].id]--
-        await updateInventory(result[0].id, inventory[result[0].id])
+      if (inventory[userData.venue] && inventory[userData.venue][result[0].id] > 0) {
+        inventory[userData.venue][result[0].id]--
+        await updateInventory(result[0].id, inventory[userData.venue][result[0].id], userData.venue)
       }
       
       showMessage('CONGRATULATIONS!', `You've won a ${result[0].label}!`, spinsLeft > 0 ? 'Spin Again' : 'View Prizes', () => {
