@@ -388,9 +388,9 @@ button.primary-btn:active {
   background: var(--h-green);
 }
 
-/* Responsive Reel Item sizing */
-@media (max-width: 480px) {
-  .reel-item {
-    /* Ensure the JS calculates translation based on this */
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  body {
+    background: url('./assets/mobile-background.jpg') top center / cover no-repeat fixed;
   }
 }
