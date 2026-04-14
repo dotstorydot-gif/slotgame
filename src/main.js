@@ -95,6 +95,17 @@ const renderCaptureForm = () => {
           <div id="phone-error" class="error-msg">Please enter a valid Egyptian phone number</div>
         </div>
         
+        <div class="form-group">
+          <label for="venue">Venue</label>
+          <select id="venue" style="width: 100%; padding: 14px 18px; background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: white; font-size: 1rem; font-weight: 700; outline: none;" required>
+            <option value="" disabled selected>Select Venue</option>
+            <option value="Le Méridien Airport">Le Méridien Airport</option>
+            <option value="Buffalo Wings & Rings">Buffalo Wings & Rings</option>
+            <option value="The Villa Hub">The Villa Hub</option>
+          </select>
+          <div id="venue-error" class="error-msg">Please select a venue</div>
+        </div>
+        
         <div class="checkbox-group">
           <input type="checkbox" id="terms" required>
           <label for="terms">I agree to the Terms & Conditions.</label>
@@ -119,15 +130,18 @@ const renderCaptureForm = () => {
   const form = document.querySelector('#lead-form')
   const nameInput = document.querySelector('#name')
   const phoneInput = document.querySelector('#phone')
+  const venueInput = document.querySelector('#venue')
   
   const nameError = document.querySelector('#name-error')
   const phoneError = document.querySelector('#phone-error')
+  const venueError = document.querySelector('#venue-error')
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault()
     let isValid = true
     nameError.style.display = 'none'
     phoneError.style.display = 'none'
+    venueError.style.display = 'none'
     
     if (!nameInput.value.trim()) {
       nameError.style.display = 'block'
@@ -143,9 +157,17 @@ const renderCaptureForm = () => {
     }
     
     if (isValid) {
+      if (!venueInput.value) {
+        venueError.style.display = 'block'
+        isValid = false
+      }
+    }
+    
+    if (isValid) {
       const userData = { 
         name: nameInput.value, 
         phone: phoneValue, 
+        venue: venueInput.value,
         prize: 'Pending'
       }
       
@@ -245,9 +267,9 @@ const renderAdminDashboard = async () => {
           <h3 style="color: var(--h-green); margin-bottom: 20px;">LEADS (${leads.length})</h3>
           <div style="height: 350px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 10px;">
             <table style="width: 100%; border-collapse: collapse;">
-              <thead><tr style="border-bottom: 2px solid var(--h-green);"><th align="left" style="padding: 10px;">Name</th><th align="left" style="padding: 10px;">Phone</th><th align="left" style="padding: 10px;">Prize</th><th align="left" style="padding: 10px;">Date</th></tr></thead>
+              <thead><tr style="border-bottom: 2px solid var(--h-green);"><th align="left" style="padding: 10px;">Name</th><th align="left" style="padding: 10px;">Phone</th><th align="left" style="padding: 10px;">Venue</th><th align="left" style="padding: 10px;">Prize</th><th align="left" style="padding: 10px;">Date</th></tr></thead>
               <tbody>
-                ${leads.map(lead => `<tr><td style="padding: 10px;">${lead.name}</td><td style="padding: 10px;">${lead.phone}</td><td style="padding: 10px; color: ${lead.prize && lead.prize !== 'Try Again' && lead.prize !== 'Pending' ? 'var(--h-green)' : 'rgba(255,255,255,0.4)'}; font-weight: 700;">${lead.prize || 'Pending'}</td><td style="padding: 10px; font-size: 0.7rem;">${new Date(lead.created_at).toLocaleString()}</td></tr>`).join('')}
+                ${leads.map(lead => `<tr><td style="padding: 10px;">${lead.name}</td><td style="padding: 10px;">${lead.phone}</td><td style="padding: 10px; font-size: 0.8rem; opacity: 0.8;">${lead.venue || '-'}</td><td style="padding: 10px; color: ${lead.prize && lead.prize !== 'Try Again' && lead.prize !== 'Pending' ? 'var(--h-green)' : 'rgba(255,255,255,0.4)'}; font-weight: 700;">${lead.prize || 'Pending'}</td><td style="padding: 10px; font-size: 0.7rem;">${new Date(lead.created_at).toLocaleString()}</td></tr>`).join('')}
               </tbody>
             </table>
           </div>
@@ -270,8 +292,8 @@ const renderAdminDashboard = async () => {
     await updateInventory(id, val)
   }
   window.exportCSV = () => {
-    const leadsHeaders = "Name,Phone,Prize,Timestamp\n";
-    const leadsRows = leads.map(l => `"${l.name}","${l.phone}","${l.prize}","${new Date(l.created_at).toLocaleString()}"`).join("\n");
+    const leadsHeaders = "Name,Phone,Venue,Prize,Timestamp\n";
+    const leadsRows = leads.map(l => `"${l.name}","${l.phone}","${l.venue || '-'}","${l.prize}","${new Date(l.created_at).toLocaleString()}"`).join("\n");
     const invHeaders = "\n\nItem,Quantity\n";
     const invRows = REWARDS.map(r => `"${r.label}","${inventory[r.id] || 0}"`).join("\n");
     
