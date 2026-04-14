@@ -50,6 +50,9 @@ body {
   overflow: hidden;
   top: 0;
   left: 0;
+  opacity: 0;
+  animation: fadeIn 1.5s ease-out forwards;
+  animation-delay: 0.8s; /* Delay bubbles to let background load first */
 }
 
 .bubble {
