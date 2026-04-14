@@ -232,29 +232,29 @@ const renderAdminLogin = () => {
 const renderAdminDashboard = async () => {
   await initData() // Refresh data
   app.innerHTML = `
-    <div class="capture-container admin-dashboard-container" style="position: relative;">
-      <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 15px;">
-        <button class="primary-btn" style="width: auto; padding: 10px 15px; font-size: 0.8rem; background: var(--h-red);" onclick="confirmReset()">Reset All Data</button>
-        <button class="primary-btn" style="width: auto; padding: 10px 15px; font-size: 0.8rem;" onclick="exportCSV()">Export CSV</button>
+    <div class="capture-container admin-dashboard-container">
+      <div class="admin-actions">
+        <button class="primary-btn reset-btn" onclick="confirmReset()">Reset All</button>
+        <button class="primary-btn export-btn" onclick="exportCSV()">Export CSV</button>
       </div>
-      <h1 style="text-align: center; font-size: 3rem; margin-bottom: 20px;">ADMIN DASHBOARD</h1>
-      <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 30px;">
+      <h1 class="admin-title">DASHBOARD</h1>
+      <div class="venue-switcher">
         ${VENUES.map(v => `
-          <button class="primary-btn" style="width: auto; padding: 10px 20px; background: ${currentAdminVenue === v ? 'var(--h-green)' : '#333'};" 
+          <button class="venue-btn ${currentAdminVenue === v ? 'active' : ''}" 
             onclick="switchVenue('${v}')">${v}</button>
         `).join('')}
       </div>
       <div class="dashboard-grid">
         <div class="dashboard-panel">
-          <h3 style="color: var(--h-green); margin-bottom: 20px;">INVENTORY: ${currentAdminVenue}</h3>
-          <div style="display: flex; flex-direction: column; gap: 15px;">
+          <h3 class="panel-title">Stock: ${currentAdminVenue}</h3>
+          <div class="inventory-list">
             ${REWARDS.map(r => `
-              <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px;">
-                <span>${r.label}</span>
-                <div style="display: flex; align-items: center; gap: 5px;">
+              <div class="inventory-row">
+                <span class="item-label">${r.label}</span>
+                <div class="inventory-controls">
                   <button class="adj-btn" onclick="adjust('${r.id}', -1)">-</button>
                   <input type="number" id="inv-input-${r.id}" value="${(inventory[currentAdminVenue] && inventory[currentAdminVenue][r.id]) || 0}" 
-                    style="width: 60px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; text-align: center; border-radius: 4px; padding: 5px; font-weight: 800;"
+                    class="inv-input"
                     onchange="setInventory('${r.id}', this.value)">
                   <button class="adj-btn" onclick="adjust('${r.id}', 1)">+</button>
                 </div>
@@ -263,22 +263,27 @@ const renderAdminDashboard = async () => {
           </div>
         </div>
         <div class="dashboard-panel">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h3 style="color: var(--h-green);">LEADS (${leads.filter(l => l.venue === currentAdminVenue).length})</h3>
-            <span style="font-size: 0.8rem; opacity: 0.7;">Showing: ${currentAdminVenue}</span>
+          <div class="leads-header">
+            <h3 class="panel-title">LEADS (${leads.filter(l => l.venue === currentAdminVenue).length})</h3>
           </div>
-          <div style="height: 350px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 10px;">
-            <table style="width: 100%; border-collapse: collapse;">
-              <thead><tr style="border-bottom: 2px solid var(--h-green);"><th align="left" style="padding: 10px;">Name</th><th align="left" style="padding: 10px;">Phone</th><th align="left" style="padding: 10px;">Prize</th><th align="left" style="padding: 10px;">Date</th></tr></thead>
+          <div class="leads-table-container">
+            <table class="leads-table">
+              <thead><tr><th>Name</th><th>Phone</th><th>Prize</th><th>Date</th></tr></thead>
               <tbody>
-                ${leads.filter(l => l.venue === currentAdminVenue).map(lead => `<tr><td style="padding: 10px;">${lead.name}</td><td style="padding: 10px;">${lead.phone}</td><td style="padding: 10px; color: ${lead.prize && lead.prize !== 'Try Again' && lead.prize !== 'Pending' ? 'var(--h-green)' : 'rgba(255,255,255,0.4)'}; font-weight: 700;">${lead.prize || 'Pending'}</td><td style="padding: 10px; font-size: 0.7rem;">${new Date(lead.created_at).toLocaleString()}</td></tr>`).join('')}
+                ${leads.filter(l => l.venue === currentAdminVenue).map(lead => `
+                  <tr>
+                    <td>${lead.name}</td>
+                    <td>${lead.phone}</td>
+                    <td style="color: ${lead.prize && lead.prize !== 'Try Again' && lead.prize !== 'Pending' ? 'var(--h-green)' : 'rgba(255,255,255,0.4)'}; font-weight: 700;">${lead.prize || 'Pending'}</td>
+                    <td class="lead-date">${new Date(lead.created_at).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</td>
+                  </tr>`).join('')}
               </tbody>
             </table>
           </div>
         </div>
       </div>
-      <div style="text-align: center; margin-top: 40px;">
-        <button class="primary-btn" style="max-width: 300px;" onclick="location.reload()">Logout Admin</button>
+      <div style="text-align: center; margin-top: 30px;">
+        <button class="primary-btn logout-btn" onclick="location.reload()">Logout Admin</button>
       </div>
     </div>
   `
