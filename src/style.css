@@ -338,6 +338,30 @@ button.primary-btn:active {
   background: rgba(255,255,255,0.05);
   padding: 20px;
   border-radius: 20px;
+  color: white;
+}
+
+.dashboard-panel span,
+.dashboard-panel td,
+.dashboard-panel th {
+  color: white;
+}
+
+.dashboard-panel h3 {
+  color: var(--h-green);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.dashboard-panel table th {
+  border-bottom: 2px solid var(--h-green);
+  padding: 10px;
+  font-size: 0.9rem;
+}
+
+.dashboard-panel table td {
+  padding: 10px;
+  font-size: 0.85rem;
 }
 
 .adj-btn {
@@ -349,6 +373,11 @@ button.primary-btn:active {
   border-radius: 8px;
   font-weight: 900;
   cursor: pointer;
+  transition: all 0.2s;
+}
+
+.adj-btn:hover {
+  background: var(--h-green);
 }
 
 /* Responsive Reel Item sizing */
