@@ -312,6 +312,21 @@ button.primary-btn:active {
   z-index: 100;
   text-align: center;
   transition: transform 0.4s;
+  color: white;
+}
+
+.game-message h2 {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  color: white;
+}
+
+.game-message p {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 25px;
+  line-height: 1.4;
 }
 
 .game-message.active {
