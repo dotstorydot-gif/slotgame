@@ -1,0 +1,14 @@
+{
+  "name": "UCL Spin & Win",
+  "short_name": "UCL Spin",
+  "description": "Heineken x UCL Spin & Win game",
+  "start_url": "/",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#002200",
+  "theme_color": "#008200",
+  "icons": [
+    { "src": "/heineken.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/heineken.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

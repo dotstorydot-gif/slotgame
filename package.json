@@ -1,0 +1,41 @@
+{
+  "name": "ucl-slot-game",
+  "version": "0.0.0",
+  "private": true,
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "android:sync": "cap sync",
+    "android:build": "cd android && gradlew assembleDebug",
+    "electron:dev": "electron .",
+    "electron:build": "vite build && electron-builder --win"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^8.3.0",
+    "@capacitor/cli": "^7.6.1",
+    "@capacitor/core": "^8.3.0",
+    "electron": "^41.1.1",
+    "electron-builder": "^26.8.1",
+    "vite": "^8.0.1"
+  },
+  "build": {
+    "appId": "com.heineken.uclslot",
+    "productName": "UCL Slot Game",
+    "directories": {
+      "output": "dist_electron"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "portable"
+    }
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.103.0"
+  }
+}
