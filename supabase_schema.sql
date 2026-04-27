@@ -35,24 +35,68 @@ CREATE TABLE IF NOT EXISTS leads (
 ALTER TABLE leads ADD COLUMN IF NOT EXISTS venue TEXT;
 ALTER TABLE leads ADD COLUMN IF NOT EXISTS prize TEXT DEFAULT 'Pending';
 
--- 3. SEED DATA: fresh stock for all 3 venues
+-- 3. SEED DATA: fresh stock for all 14 venues
 INSERT INTO inventory (id, venue, count, label)
 VALUES 
+  -- Existing Venues
   ('duffle_bag', 'Le Méridien Airport', 100, 'Heineken Bag'),
   ('laptop_bag', 'Le Méridien Airport', 50, 'Laptop Case'),
   ('laptop_sleeve', 'Le Méridien Airport', 20, 'Laptop Sleeve'),
   ('try_again', 'Le Méridien Airport', 200, 'Try Again'),
-  
   ('duffle_bag', 'Buffalo Wings & Rings', 100, 'Heineken Bag'),
   ('laptop_bag', 'Buffalo Wings & Rings', 50, 'Laptop Case'),
   ('laptop_sleeve', 'Buffalo Wings & Rings', 20, 'Laptop Sleeve'),
   ('try_again', 'Buffalo Wings & Rings', 200, 'Try Again'),
-  
   ('duffle_bag', 'The Villa Hub', 100, 'Heineken Bag'),
   ('laptop_bag', 'The Villa Hub', 50, 'Laptop Case'),
   ('laptop_sleeve', 'The Villa Hub', 20, 'Laptop Sleeve'),
-  ('try_again', 'The Villa Hub', 200, 'Try Again')
-ON CONFLICT (id, venue) DO UPDATE SET count = EXCLUDED.count;
+  ('try_again', 'The Villa Hub', 200, 'Try Again'),
+  -- New Venues
+  ('duffle_bag', 'JW Mariott Mirage - Plato', 100, 'Heineken Bag'),
+  ('laptop_bag', 'JW Mariott Mirage - Plato', 50, 'Laptop Case'),
+  ('laptop_sleeve', 'JW Mariott Mirage - Plato', 20, 'Laptop Sleeve'),
+  ('try_again', 'JW Mariott Mirage - Plato', 200, 'Try Again'),
+  ('duffle_bag', 'Westin Dunes', 100, 'Heineken Bag'),
+  ('laptop_bag', 'Westin Dunes', 50, 'Laptop Case'),
+  ('laptop_sleeve', 'Westin Dunes', 20, 'Laptop Sleeve'),
+  ('try_again', 'Westin Dunes', 200, 'Try Again'),
+  ('duffle_bag', 'The Tap East', 100, 'Heineken Bag'),
+  ('laptop_bag', 'The Tap East', 50, 'Laptop Case'),
+  ('laptop_sleeve', 'The Tap East', 20, 'Laptop Sleeve'),
+  ('try_again', 'The Tap East', 200, 'Try Again'),
+  ('duffle_bag', 'Amici West', 100, 'Heineken Bag'),
+  ('laptop_bag', 'Amici West', 50, 'Laptop Case'),
+  ('laptop_sleeve', 'Amici West', 20, 'Laptop Sleeve'),
+  ('try_again', 'Amici West', 200, 'Try Again'),
+  ('duffle_bag', 'Tipsy Camal', 100, 'Heineken Bag'),
+  ('laptop_bag', 'Tipsy Camal', 50, 'Laptop Case'),
+  ('laptop_sleeve', 'Tipsy Camal', 20, 'Laptop Sleeve'),
+  ('try_again', 'Tipsy Camal', 200, 'Try Again'),
+  ('duffle_bag', 'Zouni El gouna', 100, 'Heineken Bag'),
+  ('laptop_bag', 'Zouni El gouna', 50, 'Laptop Case'),
+  ('laptop_sleeve', 'Zouni El gouna', 20, 'Laptop Sleeve'),
+  ('try_again', 'Zouni El gouna', 200, 'Try Again'),
+  ('duffle_bag', 'Rush El Gouna', 100, 'Heineken Bag'),
+  ('laptop_bag', 'Rush El Gouna', 50, 'Laptop Case'),
+  ('laptop_sleeve', 'Rush El Gouna', 20, 'Laptop Sleeve'),
+  ('try_again', 'Rush El Gouna', 200, 'Try Again'),
+  ('duffle_bag', 'Chez Geuvara Hurghda', 100, 'Heineken Bag'),
+  ('laptop_bag', 'Chez Geuvara Hurghda', 50, 'Laptop Case'),
+  ('laptop_sleeve', 'Chez Geuvara Hurghda', 20, 'Laptop Sleeve'),
+  ('try_again', 'Chez Geuvara Hurghda', 200, 'Try Again'),
+  ('duffle_bag', 'Las Vegas Hurghada', 100, 'Heineken Bag'),
+  ('laptop_bag', 'Las Vegas Hurghada', 50, 'Laptop Case'),
+  ('laptop_sleeve', 'Las Vegas Hurghada', 20, 'Laptop Sleeve'),
+  ('try_again', 'Las Vegas Hurghada', 200, 'Try Again'),
+  ('duffle_bag', 'London Bridge Hurghada', 100, 'Heineken Bag'),
+  ('laptop_bag', 'London Bridge Hurghada', 50, 'Laptop Case'),
+  ('laptop_sleeve', 'London Bridge Hurghada', 20, 'Laptop Sleeve'),
+  ('try_again', 'London Bridge Hurghada', 200, 'Try Again'),
+  ('duffle_bag', 'Waves Hurghada', 100, 'Heineken Bag'),
+  ('laptop_bag', 'Waves Hurghada', 50, 'Laptop Case'),
+  ('laptop_sleeve', 'Waves Hurghada', 20, 'Laptop Sleeve'),
+  ('try_again', 'Waves Hurghada', 200, 'Try Again')
+ON CONFLICT (id, venue) DO NOTHING;
 
 -- 4. ENABLE SECURITY (RLS)
 ALTER TABLE inventory ENABLE ROW LEVEL SECURITY;

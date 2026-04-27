@@ -12,7 +12,22 @@ const REWARDS = [
 ]
 
 let inventory = {}
-const VENUES = ['Le Méridien Airport', 'Buffalo Wings & Rings', 'The Villa Hub']
+const VENUES = [
+  'Le Méridien Airport', 
+  'Buffalo Wings & Rings', 
+  'The Villa Hub',
+  'JW Mariott Mirage - Plato',
+  'Westin Dunes',
+  'The Tap East',
+  'Amici West',
+  'Tipsy Camal',
+  'Zouni El gouna',
+  'Rush El Gouna',
+  'Chez Geuvara Hurghda',
+  'Las Vegas Hurghada',
+  'London Bridge Hurghada',
+  'Waves Hurghada'
+]
 let currentAdminVenue = VENUES[0]
 
 let leads = []
