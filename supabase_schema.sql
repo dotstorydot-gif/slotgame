@@ -107,3 +107,16 @@ CREATE POLICY "inventory_public_access" ON inventory FOR ALL USING (true) WITH C
 
 -- Allow anyone to insert/read leads (for registration and admin)
 CREATE POLICY "leads_public_access" ON leads FOR ALL USING (true) WITH CHECK (true);
+
+
+-- 5. ATOMIC INVENTORY DECREMENT FUNCTION
+-- This ensures stock is reduced correctly even if multiple people win at once
+CREATE OR REPLACE FUNCTION decrement_inventory(p_id TEXT, p_venue TEXT)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE inventory
+  SET count = count - 1
+  WHERE id = p_id AND venue = p_venue AND count > 0;
+END;
+$$ LANGUAGE plpgsql;
+

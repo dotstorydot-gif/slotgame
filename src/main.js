@@ -239,7 +239,7 @@ const renderCaptureForm = () => {
         // Every registration decrements "Try Again" by default for the specific venue
         if (inventory[registeredUser.venue] && inventory[registeredUser.venue].try_again > 0) {
           inventory[registeredUser.venue].try_again--
-          await updateInventory('try_again', inventory[registeredUser.venue].try_again, registeredUser.venue)
+          await decrementInventory('try_again', registeredUser.venue)
         }
         
         handleSuccess(registeredUser)
@@ -270,6 +270,19 @@ const updateInventory = async (id, count, venue) => {
   } catch (error) {
     console.error(`Error updating inventory:`, error)
     saveOfflineInv(id, count, venue)
+  }
+}
+
+const decrementInventory = async (id, venue) => {
+  try {
+    const { error } = await supabase.rpc('decrement_inventory', { p_id: id, p_venue: venue })
+    if (error) throw error
+  } catch (error) {
+    console.error(`Error decrementing inventory:`, error)
+    // Fallback to manual decrement if RPC fails or is missing
+    if (inventory[venue] && inventory[venue][id] > 0) {
+      await updateInventory(id, inventory[venue][id] - 1, venue)
+    }
   }
 }
 
@@ -575,7 +588,7 @@ const handleSpin = async (userData) => {
       wonPrizes.push(result[0])
       if (inventory[userData.venue] && inventory[userData.venue][result[0].id] > 0) {
         inventory[userData.venue][result[0].id]--
-        await updateInventory(result[0].id, inventory[userData.venue][result[0].id], userData.venue)
+        await decrementInventory(result[0].id, userData.venue)
       }
       
       showMessage('CONGRATULATIONS!', `You've won a ${result[0].label}!`, spinsLeft > 0 ? 'Spin Again' : 'View Prizes', () => {
