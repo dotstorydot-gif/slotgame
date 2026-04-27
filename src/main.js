@@ -45,32 +45,49 @@ const clearOfflineLeads = () => localStorage.removeItem('offline_leads')
 
 const syncOfflineData = async () => {
   const offline = getOfflineLeads()
-  if (offline.length === 0) return 0
+  const offlineInv = JSON.parse(localStorage.getItem('offline_inv') || '[]')
+  
+  if (offline.length === 0 && offlineInv.length === 0) return 0
   
   let syncedCount = 0
+  // Sync Leads
   for (const lead of offline) {
     try {
       const { is_local, ...dbData } = lead
-      // If it's a new lead (no real ID), insert it
       if (typeof lead.id === 'string' && lead.id.startsWith('local_')) {
         const { id, ...insertData } = dbData
         await supabase.from('leads').insert([insertData])
       } else {
-        // Update existing lead
         await supabase.from('leads').update(dbData).eq('id', lead.id)
       }
       syncedCount++
-    } catch (err) {
-      console.error('Sync failed for lead:', lead, err)
-    }
+    } catch (err) { console.error('Lead sync failed:', err) }
+  }
+  
+  // Sync Inventory
+  for (const inv of offlineInv) {
+    try {
+      await supabase.from('inventory').upsert(inv)
+    } catch (err) { console.error('Inv sync failed:', err) }
   }
   
   if (syncedCount === offline.length) clearOfflineLeads()
+  localStorage.removeItem('offline_inv')
   return syncedCount
+}
+
+// Save inventory update locally if offline
+const saveOfflineInv = (id, count, venue) => {
+  const offline = JSON.parse(localStorage.getItem('offline_inv') || '[]')
+  offline.push({ id, count, venue, label: REWARDS.find(r => r.id === id)?.label || id })
+  localStorage.setItem('offline_inv', JSON.stringify(offline))
 }
 
 // Fetch initial data from Supabase
 const initData = async () => {
+  // Auto-sync if online
+  if (navigator.onLine) syncOfflineData()
+  
   try {
     const { data: invData, error: invError } = await supabase.from('inventory').select('*')
     if (invError) throw invError
@@ -253,7 +270,8 @@ const updateInventory = async (id, count, venue) => {
       .upsert({ id, venue, count, label: REWARDS.find(r => r.id === id)?.label || id })
     if (error) throw error
   } catch (error) {
-    console.error(`Error updating inventory for ${id} at ${venue}:`, error)
+    console.error(`Error updating inventory:`, error)
+    saveOfflineInv(id, count, venue)
   }
 }
 
