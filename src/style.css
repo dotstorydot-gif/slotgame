@@ -540,9 +540,53 @@ button.primary-btn:active {
   background: var(--h-green);
 }
 
-/* Responsive adjustments */
+/* Responsive & Orientation Adjustments */
 @media (max-width: 768px) {
   .bg-layer {
     background-image: url('/assets/mobile-background.jpg');
   }
+  h1 { font-size: 1.8rem; }
+  .slot-title { font-size: 1.2rem; }
+  .reel { max-width: 150px; }
+}
+
+/* Landscape Optimization (Horizontal Screens) */
+@media (orientation: landscape) and (max-height: 600px) {
+  .slot-screen {
+    flex-direction: row;
+    gap: 30px;
+    padding: 10px;
+  }
+  .slot-machine {
+    width: 60%;
+  }
+  .slot-frame {
+    max-width: 500px;
+  }
+  .capture-container {
+    max-width: 350px;
+    padding: 15px;
+  }
+  h1 { font-size: 1.5rem; }
+}
+
+/* Portrait Optimization (Vertical Screens) */
+@media (orientation: portrait) {
+  .slot-frame {
+    width: 95%;
+    max-width: 450px;
+  }
+  .reels-container {
+    gap: 10px;
+  }
+  .reel {
+    max-width: 140px;
+  }
+}
+
+/* Extra Small Screens */
+@media (max-width: 380px) {
+  .reels-container { gap: 4px; padding: 4px; }
+  .reel { border-radius: 6px; }
+  .slot-title { font-size: 1rem; }
 }
