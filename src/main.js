@@ -160,9 +160,7 @@ const renderCaptureForm = () => {
           <label for="venue">Venue</label>
           <select id="venue" required>
             <option value="" disabled selected>Select Venue</option>
-            <option value="Le Méridien Airport">Le Méridien Airport</option>
-            <option value="Buffalo Wings & Rings">Buffalo Wings & Rings</option>
-            <option value="The Villa Hub">The Villa Hub</option>
+            ${VENUES.map(v => `<option value="${v}">${v}</option>`).join('')}
           </select>
           <div id="venue-error" class="error-msg">Please select a venue</div>
         </div>

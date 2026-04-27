@@ -380,27 +380,29 @@ button.primary-btn:active {
 }
 
 .venue-switcher {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 25px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 30px;
+  max-width: 100%;
 }
 
 .venue-btn {
-  padding: 8px 12px;
+  padding: 12px 10px;
   background: #222;
   border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 8px;
+  border-radius: 10px;
   color: white;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
-  flex: 1;
-  min-width: 100px;
-  max-width: 150px;
   text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 50px;
 }
 
 .venue-btn.active {
