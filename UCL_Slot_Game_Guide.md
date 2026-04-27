@@ -14,18 +14,20 @@ The Admin Dashboard is a secure area where you can track leads and manage the pr
   - **Username**: `admin`
   - **Password**: `123456`
 
-### 2. Managing Inventory
-- The **Inventory Panel** shows the current count for each prize:
-  - **Heineken Bag**
-  - **Laptop Case**
-  - **Laptop Sleeve**
-  - **Try Again** (Stock for non-winning spins)
-- Use the **+** and **-** buttons to adjust stock levels. Updates are saved instantly to Supabase.
+### 2. Multi-Venue Management
+- Use the **Venue Switcher** grid to select the specific location you are managing (e.g., *JW Marriott*, *The Tap East*, etc.).
+- **Inventory Panel**: Adjust stock for each prize specifically for that venue.
+- **Sync Offline**: If the touch screen was used without internet, click the **Sync Offline** button to upload all locally saved leads to Supabase.
 
-### 3. Tracking Leads
-- The **Leads Table** lists every participant who has entered the game.
-- It displays their **Name**, **Phone Number**, **Prize Won**, and the **Date/Time** of entry.
-- This data is synced in real-time. If a user wins a prize, it will update immediately in this table.
+### 3. Managing Inventory
+- The stock levels for each venue are independent.
+- Use the **+** and **-** buttons to adjust stock levels. Updates are saved instantly to Supabase.
+- **Atomic Sync**: The system handles multiple simultaneous players safely without miscounting prizes.
+
+### 4. Tracking Leads
+- The **Leads Table** lists every participant.
+- It displays their **Name**, **Phone Number**, **Venue**, **Prize Won**, and the **Date/Time**.
+- Use the **Export CSV** button to download all leads for reporting.
 
 ---
 
