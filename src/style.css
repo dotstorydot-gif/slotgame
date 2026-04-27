@@ -370,6 +370,7 @@ button.primary-btn:active {
   font-size: 0.75rem;
 }
 
+.sync-btn { background: var(--ucl-gold) !important; color: #000 !important; }
 .reset-btn { background: var(--h-red) !important; }
 
 .admin-title {

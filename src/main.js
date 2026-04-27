@@ -34,6 +34,41 @@ let leads = []
 let spinsLeft = 1
 let wonPrizes = []
 
+// Offline Storage Helpers
+const getOfflineLeads = () => JSON.parse(localStorage.getItem('offline_leads') || '[]')
+const saveOfflineLead = (lead) => {
+  const offline = getOfflineLeads()
+  offline.push({ ...lead, id: lead.id || `local_${Date.now()}`, is_local: true })
+  localStorage.setItem('offline_leads', JSON.stringify(offline))
+}
+const clearOfflineLeads = () => localStorage.removeItem('offline_leads')
+
+const syncOfflineData = async () => {
+  const offline = getOfflineLeads()
+  if (offline.length === 0) return 0
+  
+  let syncedCount = 0
+  for (const lead of offline) {
+    try {
+      const { is_local, ...dbData } = lead
+      // If it's a new lead (no real ID), insert it
+      if (typeof lead.id === 'string' && lead.id.startsWith('local_')) {
+        const { id, ...insertData } = dbData
+        await supabase.from('leads').insert([insertData])
+      } else {
+        // Update existing lead
+        await supabase.from('leads').update(dbData).eq('id', lead.id)
+      }
+      syncedCount++
+    } catch (err) {
+      console.error('Sync failed for lead:', lead, err)
+    }
+  }
+  
+  if (syncedCount === offline.length) clearOfflineLeads()
+  return syncedCount
+}
+
 // Fetch initial data from Supabase
 const initData = async () => {
   try {
@@ -195,7 +230,17 @@ const renderCaptureForm = () => {
         handleSuccess(registeredUser)
       } catch (error) {
         console.error('Error saving lead:', error)
-        alert('Transaction failed. Please try again.')
+        // Offline Fallback
+        const localLead = { 
+          name: nameInput.value, 
+          phone: phoneValue, 
+          venue: venueInput.value,
+          prize: 'Pending',
+          created_at: new Date().toISOString()
+        }
+        saveOfflineLead(localLead)
+        handleSuccess({ ...localLead, id: `local_${Date.now()}` })
+        alert('Saved locally (Offline Mode). Please sync later in Admin.')
       }
     }
   })
@@ -249,6 +294,7 @@ const renderAdminDashboard = async () => {
   app.innerHTML = `
     <div class="capture-container admin-dashboard-container">
       <div class="admin-actions">
+        <button class="primary-btn sync-btn" onclick="handleAdminSync()">Sync Offline (${getOfflineLeads().length})</button>
         <button class="primary-btn reset-btn" onclick="confirmReset()">Reset All</button>
         <button class="primary-btn export-btn" onclick="exportCSV()">Export CSV</button>
       </div>
@@ -312,6 +358,14 @@ const renderAdminDashboard = async () => {
     input.value = newValue
     await setInventory(id, newValue)
   }
+  window.handleAdminSync = async () => {
+    const btn = document.querySelector('.sync-btn')
+    btn.textContent = 'Syncing...'
+    const count = await syncOfflineData()
+    alert(`Synced ${count} offline leads!`)
+    renderAdminDashboard()
+  }
+  
   window.setInventory = async (id, value) => {
     const val = Math.max(0, parseInt(value) || 0)
     if (!inventory[currentAdminVenue]) inventory[currentAdminVenue] = {}
@@ -483,12 +537,22 @@ const handleSpin = async (userData) => {
     // Update lead prize record in Supabase
     const finalPrize = isWin ? result[0].label : 'Try Again'
     try {
-      await supabase
+      const { error } = await supabase
         .from('leads')
         .update({ prize: finalPrize })
         .eq('id', userData.id)
+      if (error) throw error
     } catch (err) {
       console.error('Error updating prize:', err)
+      // Update local storage if it was a local user
+      if (userData.is_local) {
+        const offline = getOfflineLeads()
+        const idx = offline.findIndex(l => l.id === userData.id)
+        if (idx !== -1) {
+          offline[idx].prize = finalPrize
+          localStorage.setItem('offline_leads', JSON.stringify(offline))
+        }
+      }
     }
 
     if (isWin) {
