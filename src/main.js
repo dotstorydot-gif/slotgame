@@ -138,6 +138,7 @@ const createBubbles = () => {
 
 const renderCaptureForm = () => {
   app.innerHTML = `
+    <div class="main-headline">FANS HAVE<br>MORE FRIENDS</div>
     <div class="capture-container">
       <h1 id="admin-trigger" style="cursor: default; font-size: 2rem;">PLAY & WIN</h1>
       <p style="font-size: 1.2rem; color: var(--h-green); font-weight: 700; margin-bottom: 5px;">Exclusive Rewards</p>
