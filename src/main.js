@@ -227,37 +227,11 @@ const renderCaptureForm = () => {
       const userData = { 
         name: nameInput.value, 
         phone: phoneValue, 
-        venue: venueInput.value,
-        prize: 'Pending'
+        venue: venueInput.value
       }
       
-      try {
-        const { data, error } = await supabase.from('leads').insert([userData]).select()
-        if (error) throw error
-        
-        const registeredUser = data[0]
-        
-        // Every registration decrements "Try Again" by default for the specific venue
-        if (inventory[registeredUser.venue] && inventory[registeredUser.venue].try_again > 0) {
-          inventory[registeredUser.venue].try_again--
-          await decrementInventory('try_again', registeredUser.venue)
-        }
-        
-        handleSuccess(registeredUser)
-      } catch (error) {
-        console.error('Error saving lead:', error)
-        // Offline Fallback
-        const localLead = { 
-          name: nameInput.value, 
-          phone: phoneValue, 
-          venue: venueInput.value,
-          prize: 'Pending',
-          created_at: new Date().toISOString()
-        }
-        saveOfflineLead(localLead)
-        handleSuccess({ ...localLead, id: `local_${Date.now()}` })
-        alert('Saved locally (Offline Mode). Please sync later in Admin.')
-      }
+      // Move to slot machine without saving to DB yet (to avoid 'Pending' status)
+      handleSuccess(userData)
     }
   })
 }
@@ -564,33 +538,38 @@ const handleSpin = async (userData) => {
   setTimeout(async () => {
     const isWin = result[0].id === result[1].id && result[1].id === result[2].id && result[0].id !== 'try_again'
     
-    // Update lead prize record in Supabase
+    // Save the full lead (User + Prize) to Supabase now that game is complete
     const finalPrize = isWin ? result[0].label : 'Try Again'
-    try {
-      const { error } = await supabase
-        .from('leads')
-        .update({ prize: finalPrize })
-        .eq('id', userData.id)
-      if (error) throw error
-    } catch (err) {
-      console.error('Error updating prize:', err)
-      // Update local storage if it was a local user
-      if (userData.is_local) {
-        const offline = getOfflineLeads()
-        const idx = offline.findIndex(l => l.id === userData.id)
-        if (idx !== -1) {
-          offline[idx].prize = finalPrize
-          localStorage.setItem('offline_leads', JSON.stringify(offline))
-        }
-      }
+    const fullLeadData = {
+      name: userData.name,
+      phone: userData.phone,
+      venue: userData.venue,
+      prize: finalPrize
     }
 
-    if (isWin) {
-      wonPrizes.push(result[0])
-      if (inventory[userData.venue] && inventory[userData.venue][result[0].id] > 0) {
-        inventory[userData.venue][result[0].id]--
-        await decrementInventory(result[0].id, userData.venue)
+    try {
+      const { error } = await supabase.from('leads').insert([fullLeadData])
+      if (error) throw error
+      
+      // Decrement "Try Again" or Prize stock
+      if (isWin) {
+        wonPrizes.push(result[0])
+        if (inventory[userData.venue] && inventory[userData.venue][result[0].id] > 0) {
+          inventory[userData.venue][result[0].id]--
+          await decrementInventory(result[0].id, userData.venue)
+        }
+      } else {
+        if (inventory[userData.venue] && inventory[userData.venue].try_again > 0) {
+          inventory[userData.venue].try_again--
+          await decrementInventory('try_again', userData.venue)
+        }
       }
+    } catch (err) {
+      console.error('Error saving finalized lead:', err)
+      // Offline Fallback
+      saveOfflineLead({ ...fullLeadData, created_at: new Date().toISOString() })
+      alert('Game saved locally (Offline Mode). Please sync later.')
+    }
       
       showMessage('CONGRATULATIONS!', `You've won a ${result[0].label}!`, spinsLeft > 0 ? 'Spin Again' : 'View Prizes', () => {
         if (spinsLeft > 0) { hideMessage(); spinBtn.disabled = false }
