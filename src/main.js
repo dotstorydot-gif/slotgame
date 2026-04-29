@@ -494,9 +494,10 @@ const handleSpin = async (userData) => {
   const totalStock = totalPrizeStock + tryAgainStock
   const winProbability = totalStock > 0 ? totalPrizeStock / totalStock : 0
 
+  // Default result is a guaranteed loss (mixed items)
   const result = [
-    REWARDS[Math.floor(Math.random() * (REWARDS.length - 1))],
-    REWARDS[Math.floor(Math.random() * (REWARDS.length - 1))],
+    REWARDS[0],
+    REWARDS[1],
     REWARDS[Math.floor(Math.random() * (REWARDS.length - 1))]
   ]
 
@@ -571,6 +572,7 @@ const handleSpin = async (userData) => {
       alert('Game saved locally (Offline Mode). Please sync later.')
     }
       
+    if (isWin) {
       showMessage('CONGRATULATIONS!', `You've won a ${result[0].label}!`, spinsLeft > 0 ? 'Spin Again' : 'View Prizes', () => {
         if (spinsLeft > 0) { hideMessage(); spinBtn.disabled = false }
         else { renderFinalWinningScreen() }
