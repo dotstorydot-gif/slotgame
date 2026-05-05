@@ -95,7 +95,20 @@ VALUES
   ('duffle_bag', 'Waves Hurghada', 100, 'Heineken Bag'),
   ('laptop_bag', 'Waves Hurghada', 50, 'Laptop Case'),
   ('laptop_sleeve', 'Waves Hurghada', 20, 'Laptop Sleeve'),
-  ('try_again', 'Waves Hurghada', 200, 'Try Again')
+  ('try_again', 'Waves Hurghada', 200, 'Try Again'),
+  -- More New Venues
+  ('duffle_bag', 'Andiamo', 100, 'Heineken Bag'),
+  ('laptop_bag', 'Andiamo', 50, 'Laptop Case'),
+  ('laptop_sleeve', 'Andiamo', 20, 'Laptop Sleeve'),
+  ('try_again', 'Andiamo', 200, 'Try Again'),
+  ('duffle_bag', 'Amici new giza', 100, 'Heineken Bag'),
+  ('laptop_bag', 'Amici new giza', 50, 'Laptop Case'),
+  ('laptop_sleeve', 'Amici new giza', 20, 'Laptop Sleeve'),
+  ('try_again', 'Amici new giza', 200, 'Try Again'),
+  ('duffle_bag', 'Tap west', 100, 'Heineken Bag'),
+  ('laptop_bag', 'Tap west', 50, 'Laptop Case'),
+  ('laptop_sleeve', 'Tap west', 20, 'Laptop Sleeve'),
+  ('try_again', 'Tap west', 200, 'Try Again')
 ON CONFLICT (id, venue) DO NOTHING;
 
 -- 4. ENABLE SECURITY (RLS)

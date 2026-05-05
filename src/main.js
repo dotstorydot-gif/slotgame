@@ -26,7 +26,10 @@ const VENUES = [
   'Chez Geuvara Hurghda',
   'Las Vegas Hurghada',
   'London Bridge Hurghada',
-  'Waves Hurghada'
+  'Waves Hurghada',
+  'Andiamo',
+  'Amici new giza',
+  'Tap west'
 ]
 let currentAdminVenue = VENUES[0]
 
