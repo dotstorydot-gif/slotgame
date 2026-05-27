@@ -29,7 +29,12 @@ const VENUES = [
   'Waves Hurghada',
   'Andiamo',
   'Amici new giza',
-  'Tap west'
+  'Tap west',
+  'Amici play',
+  'Il punto',
+  "L'apero",
+  'Queen vic',
+  'Hard rock nabq'
 ]
 let currentAdminVenue = VENUES[0]
 

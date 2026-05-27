@@ -108,7 +108,28 @@ VALUES
   ('duffle_bag', 'Tap west', 100, 'Heineken Bag'),
   ('laptop_bag', 'Tap west', 50, 'Laptop Case'),
   ('laptop_sleeve', 'Tap west', 20, 'Laptop Sleeve'),
-  ('try_again', 'Tap west', 200, 'Try Again')
+  ('try_again', 'Tap west', 200, 'Try Again'),
+  -- Added Venues
+  ('duffle_bag', 'Amici play', 100, 'Heineken Bag'),
+  ('laptop_bag', 'Amici play', 50, 'Laptop Case'),
+  ('laptop_sleeve', 'Amici play', 20, 'Laptop Sleeve'),
+  ('try_again', 'Amici play', 200, 'Try Again'),
+  ('duffle_bag', 'Il punto', 100, 'Heineken Bag'),
+  ('laptop_bag', 'Il punto', 50, 'Laptop Case'),
+  ('laptop_sleeve', 'Il punto', 20, 'Laptop Sleeve'),
+  ('try_again', 'Il punto', 200, 'Try Again'),
+  ('duffle_bag', 'L''apero', 100, 'Heineken Bag'),
+  ('laptop_bag', 'L''apero', 50, 'Laptop Case'),
+  ('laptop_sleeve', 'L''apero', 20, 'Laptop Sleeve'),
+  ('try_again', 'L''apero', 200, 'Try Again'),
+  ('duffle_bag', 'Queen vic', 100, 'Heineken Bag'),
+  ('laptop_bag', 'Queen vic', 50, 'Laptop Case'),
+  ('laptop_sleeve', 'Queen vic', 20, 'Laptop Sleeve'),
+  ('try_again', 'Queen vic', 200, 'Try Again'),
+  ('duffle_bag', 'Hard rock nabq', 100, 'Heineken Bag'),
+  ('laptop_bag', 'Hard rock nabq', 50, 'Laptop Case'),
+  ('laptop_sleeve', 'Hard rock nabq', 20, 'Laptop Sleeve'),
+  ('try_again', 'Hard rock nabq', 200, 'Try Again')
 ON CONFLICT (id, venue) DO NOTHING;
 
 -- 4. ENABLE SECURITY (RLS)
