@@ -314,7 +314,7 @@ const renderAdminDashboard = async () => {
       <div class="venue-switcher">
         ${VENUES.map(v => `
           <button class="venue-btn ${currentAdminVenue === v ? 'active' : ''}" 
-            onclick="switchVenue('${v}')">${v}</button>
+            onclick="switchVenue('${v.replace(/'/g, "\\'")}')">${v}</button>
         `).join('')}
       </div>
       <div class="dashboard-grid">
